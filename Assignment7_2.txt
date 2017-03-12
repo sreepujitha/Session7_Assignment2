@@ -1,0 +1,58 @@
+TASK1
+
+Task1.pig
+
+employee = LOAD 'employee_details.txt' USING PigStorage(',') AS (emp_id:int, emp_name:chararray,emp_sal:long,emp_rating:int);
+emp_high_rating = ORDER employee BY emp_rating DESC,emp_name ASC;
+emp_details = FOREACH emp_high_rating GENERATE emp_id,emp_name;
+top5_emp = LIMIT emp_details 5;
+DUMP top5_emp;
+                   
+
+TASK 2:
+
+task2.pig:
+
+employee = LOAD 'employee_details.txt' USING PigStorage(',') AS (emp_id:int, emp_name:chararray, emp_sal:long, emp_rating:int);
+emp_odd_id = FILTER employee BY emp_id%2==1;
+emp_high_sal = ORDER emp_odd_id BY emp_sal DESC,emp_name ASC;
+emp_details = FOREACH emp_high_sal GENERATE emp_id,emp_name;
+top3_emp = LIMIT emp_details 3;
+DUMP top3_emp;
+
+Task3:
+
+Task3.pig
+
+employee = LOAD 'employee_details.txt' USING PigStorage(',') AS (emp_id:int, emp_name:chararray, emp_sal:long, emp_rating:int);
+emp_exp = LOAD 'employee_expenses.txt' AS (emp_id:int, emp_expense:int);
+grpd= GROUP emp_exp all;
+data= FOREACH grpd GENERATE MAX(emp_exp.emp_expense) as maxval;
+fldata= FILTER emp_exp by emp_expense==data.maxval;
+joined= JOIN employee by emp_id, fldata by emp_id;
+final_result= FOREACH joined GENERATE employee::emp_id,emp_name;
+ordered= ORDER final_result by emp_name ASC;
+DUMP ordered;
+
+Task4:
+
+Task4.pig
+
+employee = LOAD 'employee_details.txt' USING PigStorage(',') AS (emp_id:int, emp_name:chararray, emp_sal:long, emp_rating:int);
+emp_exp = LOAD 'employee_expenses.txt' AS (emp_id:int, emp_expense:int);
+joined = JOIN employee by emp_id, emp_exp by emp_id;
+entry= FOREACH joined GENERATE employee::emp_id,emp_name;
+final= DISTINCT entry;
+DUMP final;
+
+
+Task5:
+
+Task5.pig
+
+employee = LOAD 'employee_details.txt' USING PigStorage(',') AS (emp_id:int, emp_name:chararray, emp_sal:long, emp_rating:int);
+emp_exp = LOAD 'employee_expenses.txt' AS (emp_id:int, emp_expense:int);
+joined= JOIN employee by emp_id LEFT , emp_exp by emp_id;
+filtered = FILTER joined by emp_exp::emp_id is null;
+result= FOREACH filtered GENERATE employee::emp_id,emp_name;
+DUMP result;
